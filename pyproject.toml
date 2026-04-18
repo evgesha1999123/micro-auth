@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "micro-auth"
+version = "0.1.0"
+description = ""
+authors = ["evgesha1999 <evgesha.22013@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.13"
+fastapi = "^0.136.0"
+dishka = "^1.9.1"
+pydantic = "^2.13.2"
+pydantic-core = "^2.46.2"
+pytz = "^2026.1.post1"
+python-jose = "^3.5.0"
+bcrypt = "4.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "bump2version (>=1.0.1,<2.0.0)",
+    "gitprompter (>=0.2.1,<0.3.0)",
+    "pytest (>=9.0.3,<10.0.0)"
+]

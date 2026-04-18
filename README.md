@@ -1,0 +1,1 @@
+Simple minimalistic authorization service

@@ -57,7 +57,7 @@ coverage.xml
 .idea/
 *.iml
 
-# VS Code (если вдруг используешь)
+# vscode
 .vscode/
 
 # mypy

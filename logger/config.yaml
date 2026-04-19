@@ -1,0 +1,55 @@
+# logger/config.yaml
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  colorized:
+    class: uvicorn.logging.ColourizedFormatter  # Полный путь к классу
+    format: '%(levelprefix)s %(name)-35s %(message)s'
+    datefmt: '%H:%M:%S'
+  detailed:
+    format: '%(levelname)-8s %(asctime)s.%(msecs)03d %(name)-35s %(module)s:%(lineno)d - %(message)s'
+    datefmt: '%H:%M:%S'
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: colorized
+    stream: ext://sys.stdout
+
+
+
+loggers:
+  # lib
+  uvicorn:
+    level: INFO
+    handlers: [ console ]
+    propagate: false
+  tortoise:
+    level: INFO
+    handlers: [ console ]
+    propagate: false
+
+  # project
+  __main__:
+    level: DEBUG
+    handlers: [ console ]
+    propagate: false
+  api:
+    level: DEBUG
+    handlers: [ console ]
+    propagate: false
+  database:
+    level: DEBUG
+    handlers: [ console ]
+    propagate: false
+
+  logger:
+    level: DEBUG
+    handlers: [ console ]
+    propagate: false
+
+root:
+  level: WARNING
+  handlers: [ console ]

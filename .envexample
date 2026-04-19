@@ -1,0 +1,20 @@
+# App
+APP_SERVER_PORT=value
+
+# DefaultDB
+DEFAULT_DB_USER=value
+DEFAULT_DB_PASS=value
+DEFAULT_DB_HOST=value
+DEFAULT_DB_PORT=value
+DEFAULT_DB_NAME=value
+
+# JWT
+JWT_SECRET_KEY=value
+JWT_EXPIRES_SECONDS=value
+
+# API
+API_KEY=value
+
+# Swagger
+SWAGGER_LOGIN=value
+SWAGGER_PASSWORD=value

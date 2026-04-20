@@ -1,5 +1,4 @@
-from database.tables import User
-from service.exceptions.base import BaseCustomRecordException
+from core.service.exception import BaseCustomRecordException
 
 class LoginAlreadyExists(BaseCustomRecordException):
     def __str__(self) -> str:

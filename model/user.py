@@ -20,7 +20,7 @@ class UserWithRoleSchema(BaseModel):
 
 class UserRegistrationSchema(BaseModel):
     username: str
-    email: str
+    email: Optional[str] = None
     password: str
 
 

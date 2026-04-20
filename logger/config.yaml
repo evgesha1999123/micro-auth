@@ -44,6 +44,10 @@ loggers:
     level: DEBUG
     handlers: [ console ]
     propagate: false
+  service.role:
+    level: DEBUG
+    handlers: [ console ]
+    propagate: false
 
   logger:
     level: DEBUG

@@ -4,10 +4,12 @@ from dishka import make_async_container
 from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
 
-import di
+from api.handlers import record_already_exists_handler, record_not_exists_handler
+from core import di
 from api import routers
 from api.lifespans import lifespan
-from di.providers.app import AppProvider
+from core.di import AppProvider
+from core.service.exception import RecordAlreadyExistsException, RecordDoesNotExistsException
 from settings import Settings
 
 logger = logging.getLogger(__name__)
@@ -30,6 +32,11 @@ logger.debug(f"Настройки проекта: {settings.app}")
 
 app.include_router(routers.roles_router)
 app.include_router(routers.users_router)
+app.include_router(routers.auth_router)
+app.include_router(routers.user_role_router)
+
+app.add_exception_handler(RecordAlreadyExistsException, record_already_exists_handler)
+app.add_exception_handler(RecordDoesNotExistsException, record_not_exists_handler)
 
 setup_dishka(
     container=make_async_container(AppProvider()),

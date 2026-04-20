@@ -6,7 +6,7 @@ from typing import AsyncGenerator, Awaitable, Callable, TypeVar
 
 from tortoise import BaseDBAsyncClient, Tortoise, connections
 
-import di
+from core import di
 from settings import Settings
 
 logger = logging.getLogger(__name__)

@@ -6,7 +6,7 @@ from model.role import RoleSchema
 
 
 class UserSchema(BaseModel):
-    pk: int
+    id: Optional[int] = None
     username: str
     email: Optional[str] = None
     password_hash: str

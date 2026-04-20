@@ -3,7 +3,8 @@ from typing import Optional
 from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter
 
-from model.user import UserRegistrationSchema, UserSchema, UserLoginSchema, UserWithRoleSchema
+from model.user import UserRegistrationSchema, UserSchema, UserLoginSchema
+from model.user_role import UserWithRoleSchema
 
 router = APIRouter(prefix="/auth", tags=["Auth"], route_class=DishkaRoute)
 

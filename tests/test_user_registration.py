@@ -1,11 +1,8 @@
 import unittest
 from unittest import IsolatedAsyncioTestCase
-from unittest.mock import AsyncMock, MagicMock, patch
-from typing import Optional
-from iso8601 import iso8601
+from unittest.mock import AsyncMock, MagicMock
 
 from tortoise import Tortoise
-from tortoise.exceptions import IntegrityError
 
 from database.db import TORTOISE_ORM
 from database.tables import Role
@@ -436,6 +433,7 @@ class TestRoleDbServiceMock(unittest.IsolatedAsyncioTestCase):
         call_args = self.mock_db_class.get_or_create.call_args[1]
         self.assertNotIn("id", call_args)
         self.assertEqual(call_args["role_name"], "test")
+
 
 if __name__ == '__main__':
     unittest.main()

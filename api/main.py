@@ -16,14 +16,14 @@ app = FastAPI(
     title='micro-auth',
     lifespan=lifespan,
     version=settings.app.VERSION,
-    docs_url=None,
+    docs_url="/swagger/docs/",
     redoc_url=None,
 )
 
 
 @app.get("/", include_in_schema=False)
 def read_root() -> dict:
-    return {"documentation_path": "swagger/docs/"}
+    return {"documentation_path": "/swagger/docs/"}
 
 
 logger.debug(f"Настройки проекта: {settings.app}")

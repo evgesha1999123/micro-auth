@@ -2,5 +2,5 @@ from pydantic import BaseModel
 
 
 class RoleSchema(BaseModel):
-    id_: int
+    id: int
     role_name: str

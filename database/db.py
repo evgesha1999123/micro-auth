@@ -18,7 +18,9 @@ P = TypeVar("P")
 
 TORTOISE_ORM = {
     "connections": {
-        "default": settings.db.get_connection_config(),
+        "default": settings.test_db.get_connection_config()
+        if settings.app.USE_TEST_DB
+        else settings.db.get_connection_config(),
     },
     "apps": {
         "models": {
@@ -85,6 +87,10 @@ async def generate_schemas() -> None:
     await Tortoise.init(config=TORTOISE_ORM)
     await Tortoise.generate_schemas()
 
+async def watch() -> None:
+    await Tortoise.init(config=TORTOISE_ORM)
+    print(Tortoise.apps.get("models"))
 
 if __name__ == '__main__':
-    asyncio.run(generate_schemas())
+    # asyncio.run(generate_schemas())
+    asyncio.run(watch())

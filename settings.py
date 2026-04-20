@@ -4,6 +4,8 @@ from pathlib import Path
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+import settings
+
 
 class FromEnvFile(BaseSettings):
     model_config = SettingsConfigDict(
@@ -36,10 +38,15 @@ class DefaultDB(BaseConnection):
     model_config = SettingsConfigDict(env_prefix="DEFAULT_DB_")
 
 
+class TestDB(BaseConnection):
+    model_config = SettingsConfigDict(env_prefix="TEST_DB_")
+
+
 class App(FromEnvFile):
     model_config = SettingsConfigDict(env_prefix="APP_")
     SERVER_PORT: int
     VERSION: str = '0.0.1'  # bump2version autogenerate. DO NOT EDIT
+    USE_TEST_DB: bool
 
 
 class API(FromEnvFile):
@@ -63,6 +70,12 @@ class JWT(FromEnvFile):
 class Settings(BaseSettings):
     app: App = Field(default_factory=App)
     db: DefaultDB = Field(default_factory=DefaultDB)
+    test_db: TestDB = Field(default_factory=TestDB)
     jwt: JWT = Field(default_factory=JWT)
     api: API = Field(default_factory=API)
     swagger: Swagger = Field(default_factory=Swagger)
+
+
+if __name__ == '__main__':
+    settings = Settings()
+    print(settings.app)

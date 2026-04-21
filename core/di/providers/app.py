@@ -6,8 +6,10 @@ from model.role import RoleSchema
 from model.user import UserSchema
 from repository.role import RoleDbRepository
 from repository.user import UserDbRepository
+from repository.user_role import UserRoleRepository
 from service.role import RoleService
 from service.user import UserService
+from service.user_role import UserRoleService
 from settings import Settings
 from utils.password_utils import PasswordUtil
 
@@ -43,3 +45,7 @@ class AppProvider(Provider):
             user_repo=UserDbRepository(dto_class=UserSchema, db_class=User),
             password_util=self.password_util()
         )
+
+    @provide
+    def user_role_service(self) -> UserRoleService:
+        return UserRoleService(user_role_repo=UserRoleRepository())

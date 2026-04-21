@@ -4,12 +4,13 @@ from dishka import make_async_container
 from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
 
-from api.handlers import record_already_exists_handler, record_not_exists_handler
+from api.handlers import record_already_exists_handler, record_not_exists_handler, password_verification_failed_handler
 from core import di
 from api import routers
 from api.lifespans import lifespan
 from core.di import AppProvider
 from core.service.exception import RecordAlreadyExistsException, RecordDoesNotExistsException
+from service.exceptions import PasswordVerificationFailed
 from settings import Settings
 
 logger = logging.getLogger(__name__)
@@ -37,6 +38,7 @@ app.include_router(routers.user_role_router)
 
 app.add_exception_handler(RecordAlreadyExistsException, record_already_exists_handler)
 app.add_exception_handler(RecordDoesNotExistsException, record_not_exists_handler)
+app.add_exception_handler(PasswordVerificationFailed, password_verification_failed_handler)
 
 setup_dishka(
     container=make_async_container(AppProvider()),

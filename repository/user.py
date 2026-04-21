@@ -3,7 +3,8 @@ from typing import Optional
 from tortoise.expressions import Q
 
 from core.repository.repository import BaseDbRepository
-from database.tables import User
+from database.tables import User, Role
+from model.role import RoleSchema
 from model.user import UserSchema
 
 
@@ -62,20 +63,6 @@ class UserDbRepository(BaseDbRepository[UserSchema, User]):
             )
         else:
             return None
-
-    # async def get_user_by_unique_field_and_password_hash(self, password_hash: str, **param) -> Optional[UserSchema]:
-    #     valid = self.__validate_param(**param)
-    #     if valid:
-    #         user = await self.db_class().get_or_none(password_hash=password_hash, **param)
-    #         if user:
-    #             return self.dto_class(
-    #                 id=user.pk,
-    #                 username=user.username,
-    #                 email=user.email,
-    #                 password_hash=user.password_hash,
-    #                 token_version=user.token_version
-    #             )
-    #     return None
 
     @staticmethod
     def __validate_param(**param) -> bool:

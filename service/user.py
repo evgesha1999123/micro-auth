@@ -1,7 +1,7 @@
 from core.service.exception import RecordAlreadyExistsException, RecordDoesNotExistsException
-from model.user import UserSchema
+from model.user import UserSchema, UserRegistrationSchema
 from repository.user import UserDbRepository
-from service.exceptions import PasswordVerificationFailed
+from service.exceptions import PasswordVerificationFailed, UsernameAlreadyExists, EmailAlreadyExists
 from utils.password_utils import PasswordUtil
 
 
@@ -10,6 +10,24 @@ class UserService:
         self.repo = user_repo
         self.password_util = password_util
 
+
+    async def add_user(self, user_registration_schema: UserRegistrationSchema) -> UserSchema | None:
+        hashed_pass = self.password_util.get_password_hash(user_registration_schema.password)
+        await self.__check_login_exists(user_registration_schema)
+        return await self.repo.create(
+            username=user_registration_schema.username,
+            email=user_registration_schema.email,
+            password_hash=hashed_pass,
+        )
+
+    async def __check_login_exists(self, user_registration_schema: UserRegistrationSchema) -> None:
+        user_conflicts_username = await self.repo.get_by_login(user_registration_schema.username)
+        if user_conflicts_username:
+            raise UsernameAlreadyExists(user_registration_schema.username)
+
+        user_conflicts_email = await self.repo.get_by_login(user_registration_schema.email)
+        if user_conflicts_email:
+            raise EmailAlreadyExists(user_registration_schema.email)
 
     async def change_username(self, old: str, new: str) -> UserSchema:
         old_user = await self.repo.get_by_unique_field(username=old)
@@ -22,8 +40,8 @@ class UserService:
         raise RecordDoesNotExistsException(username=old)
 
 
-    async def change_password(self, username: str, old: str, new: str) -> UserSchema:
-        user = await self.repo.get_by_unique_field(username=username)
+    async def change_password(self, login: str, old: str, new: str) -> UserSchema:
+        user = await self.repo.get_by_login(login=login)
         if user:
             verified = self.password_util.verify_password(
                 plain_password=old,
@@ -35,9 +53,9 @@ class UserService:
                     password_hash=self.password_util.get_password_hash(new)
                 )
             else:
-                raise PasswordVerificationFailed(username)
+                raise PasswordVerificationFailed(login)
         else:
-            raise RecordDoesNotExistsException(username=username)
+            raise RecordDoesNotExistsException(login=login)
 
 
     async def change_email(self, old: str, new: str) -> UserSchema:

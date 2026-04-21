@@ -7,6 +7,7 @@ from model.user import UserSchema
 from repository.role import RoleDbRepository
 from repository.user import UserDbRepository
 from repository.user_role import UserRoleRepository
+from service.auth import AuthService
 from service.role import RoleService
 from service.user import UserService
 from service.user_role import UserRoleService
@@ -43,9 +44,23 @@ class AppProvider(Provider):
     def user_service(self) -> UserService:
         return UserService(
             user_repo=UserDbRepository(dto_class=UserSchema, db_class=User),
-            password_util=self.password_util()
+            password_util=PasswordUtil(algorythm=self.settings.app.HASH_ALGORYTHM)
         )
 
     @provide
     def user_role_service(self) -> UserRoleService:
         return UserRoleService(user_role_repo=UserRoleRepository())
+
+    @provide
+    def auth_service(self) -> AuthService:
+        return AuthService(
+            user_service=UserService(
+                user_repo=UserDbRepository(
+                    dto_class=UserSchema,
+                    db_class=User
+                ),
+                password_util=PasswordUtil(algorythm=self.settings.app.HASH_ALGORYTHM)
+            ),
+            user_role_service=UserRoleService(user_role_repo=UserRoleRepository()),
+            password_util=PasswordUtil(algorythm=self.settings.app.HASH_ALGORYTHM)
+        )

@@ -13,8 +13,8 @@ async def change_username(old: str, new: str) -> UserSchema:
     return await service.change_username(old, new)
 
 @router.post("/me/password/")
-async def change_password(username: str, old: str, new: str) -> UserSchema:
-    return await service.change_password(username, old, new)
+async def change_password(login: str, old: str, new: str) -> UserSchema:
+    return await service.change_password(login, old, new)
 
 @router.post("/me/email/")
 async def change_email(old: str, new: str) -> UserSchema:

@@ -3,8 +3,7 @@ from typing import Optional
 from tortoise.expressions import Q
 
 from core.repository.repository import BaseDbRepository
-from database.tables import User, Role
-from model.role import RoleSchema
+from database.tables import User
 from model.user import UserSchema
 
 
@@ -13,17 +12,20 @@ class UserDbRepository(BaseDbRepository[UserSchema, User]):
         user = await self.db_class().get_or_none(id=id_)
         return user is not None
 
-    async def create(self, **kwargs) -> UserSchema:
+    async def create(self, **kwargs) -> UserSchema | None:
         if kwargs.get("id"):
             kwargs.pop("id")
-        user = await self.db_class().create(**kwargs)
-        return self.dto_class(
-            id=user.pk,
-            username=user.username,
-            email=user.email,
-            password_hash=user.password_hash,
-            token_version=user.token_version
-        )
+        user, created = await self.db_class().get_or_create(**kwargs)
+        if created:
+            return self.dto_class(
+                id=user.pk,
+                username=user.username,
+                email=user.email,
+                password_hash=user.password_hash,
+                token_version=user.token_version
+            )
+        else:
+            return None
 
     async def get_by_id(self, id_: int) -> UserSchema:
         user = await self.db_class().get(id=id_)

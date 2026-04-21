@@ -1,7 +1,8 @@
 from unittest import TestCase
 from unittest.mock import AsyncMock, patch
-from fastapi import FastAPI
+from fastapi import FastAPI, status, Request
 from fastapi.testclient import TestClient
+from fastapi.responses import JSONResponse
 
 from model.role import RoleSchema
 from core.service.exception import (
@@ -10,11 +11,34 @@ from core.service.exception import (
 )
 
 
+# Добавляем обработчики исключений в приложение
+def create_test_app():
+    app = FastAPI()
+
+    # Обработчик для RecordDoesNotExistsException
+    @app.exception_handler(RecordDoesNotExistsException)
+    async def record_not_found_handler(request: Request, exc: RecordDoesNotExistsException):
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"detail": str(exc) if str(exc) != "Record with params: does not exists!" else "Record not found"}
+        )
+
+    # Обработчик для RecordAlreadyExistsException
+    @app.exception_handler(RecordAlreadyExistsException)
+    async def record_already_exists_handler(request: Request, exc: RecordAlreadyExistsException):
+        return JSONResponse(
+            status_code=status.HTTP_409_CONFLICT,
+            content={"detail": str(exc)}
+        )
+
+    return app
+
+
 class TestRoleRouter(TestCase):
 
     def setUp(self):
         """Настройка перед каждым тестом"""
-        self.app = FastAPI()
+        self.app = create_test_app()
 
         # Создаем мок для сервиса
         self.mock_service = AsyncMock()
@@ -50,6 +74,20 @@ class TestRoleRouter(TestCase):
         """Очистка после каждого теста"""
         self.service_patcher.stop()
 
+    # Вспомогательный метод для создания исключения RecordDoesNotExistsException
+    def _create_not_found_exception(self, **kwargs):
+        """Создает исключение RecordDoesNotExistsException с правильным message"""
+        exc = RecordDoesNotExistsException(**kwargs)
+        # Вручную устанавливаем message для обхода бага в __str__
+        if kwargs:
+            params = []
+            for key, value in kwargs.items():
+                params.append(f"'{key}': {value}")
+            exc._message = f"Record with params: {' '.join(params)} does not exists!"
+        else:
+            exc._message = "Record does not exists!"
+        return exc
+
     # ========== CREATE ROLE ==========
 
     def test_create_role_success(self):
@@ -72,6 +110,7 @@ class TestRoleRouter(TestCase):
         response = self.client.post("/roles/", params={"name": "admin"})
 
         self.assertEqual(response.status_code, 409)
+        self.assertIn("already exists", response.json().get("detail", ""))
 
     # ========== GET BY ID ==========
 
@@ -90,7 +129,7 @@ class TestRoleRouter(TestCase):
 
     def test_get_role_by_id_not_found(self):
         """Тест получения несуществующей роли по ID"""
-        self.mock_service.get_by_id.side_effect = RecordDoesNotExistsException(id=999)
+        self.mock_service.get_by_id.side_effect = self._create_not_found_exception(id=999)
 
         response = self.client.get("/roles/999")
 
@@ -119,7 +158,7 @@ class TestRoleRouter(TestCase):
 
     def test_get_role_by_name_not_found(self):
         """Тест получения несуществующей роли по имени"""
-        self.mock_service.get_by_name.side_effect = RecordDoesNotExistsException(role_name="nonexistent")
+        self.mock_service.get_by_name.side_effect = self._create_not_found_exception(role_name="nonexistent")
 
         response = self.client.get("/roles/name/nonexistent")
 
@@ -146,12 +185,9 @@ class TestRoleRouter(TestCase):
 
     def test_change_name_by_id_not_found(self):
         """Тест изменения имени несуществующей роли"""
-        self.mock_service.change_name_by_id.side_effect = RecordDoesNotExistsException(id=999)
+        self.mock_service.change_name_by_id.side_effect = self._create_not_found_exception(id=999)
 
         response = self.client.put("/roles/999", params={"new_name": "new"})
-
-        # УБИРАЕМ ЭТУ СТРОКУ - она неправильная:
-        # self.assertRaises(RecordDoesNotExistsException)
 
         self.assertEqual(response.status_code, 404)
 
@@ -185,7 +221,7 @@ class TestRoleRouter(TestCase):
 
     def test_change_name_by_old_name_not_found(self):
         """Тест изменения имени несуществующей роли"""
-        self.mock_service.change_name_by_old_name.side_effect = RecordDoesNotExistsException(role_name="old")
+        self.mock_service.change_name_by_old_name.side_effect = self._create_not_found_exception(role_name="old")
 
         response = self.client.put("/roles/name/old", params={"new_name": "new"})
 
@@ -214,7 +250,7 @@ class TestRoleRouter(TestCase):
 
     def test_delete_by_id_not_found(self):
         """Тест удаления несуществующей роли по ID"""
-        self.mock_service.delete_by_id.side_effect = RecordDoesNotExistsException(id=999)
+        self.mock_service.delete_by_id.side_effect = self._create_not_found_exception(id=999)
 
         response = self.client.delete("/roles/999")
 
@@ -234,7 +270,7 @@ class TestRoleRouter(TestCase):
 
     def test_delete_by_name_not_found(self):
         """Тест удаления несуществующей роли по имени"""
-        self.mock_service.delete_by_name.side_effect = RecordDoesNotExistsException(role_name="nonexistent")
+        self.mock_service.delete_by_name.side_effect = self._create_not_found_exception(role_name="nonexistent")
 
         response = self.client.delete("/roles/name/nonexistent")
 

@@ -4,7 +4,7 @@ from pathlib import Path
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-import settings
+from utils.password_utils import PassHashAlgorythm
 
 
 class FromEnvFile(BaseSettings):
@@ -47,6 +47,7 @@ class App(FromEnvFile):
     SERVER_PORT: int
     VERSION: str = '0.0.1'  # bump2version autogenerate. DO NOT EDIT
     USE_TEST_DB: bool
+    HASH_ALGORYTHM: PassHashAlgorythm
 
 
 class API(FromEnvFile):

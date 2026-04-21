@@ -1,3 +1,7 @@
+from typing import Optional
+
+from tortoise.expressions import Q
+
 from core.repository.repository import BaseDbRepository
 from database.tables import User
 from model.user import UserSchema
@@ -29,6 +33,53 @@ class UserDbRepository(BaseDbRepository[UserSchema, User]):
             password_hash=user.password_hash,
             token_version=user.token_version
         )
+
+    async def get_by_unique_field(self, **param) -> Optional[UserSchema]:
+        valid = self.__validate_param(**param)
+        if valid:
+            user = await self.db_class().get_or_none(**param)
+        else:
+            user = None
+        if user:
+            return self.dto_class(
+                id=user.pk,
+                username=user.username,
+                email=user.email,
+                password_hash=user.password_hash,
+                token_version=user.token_version
+            )
+        return user
+
+    async def get_by_login(self, login: str) -> Optional[UserSchema]:
+        user = await self.db_class().get_or_none(Q(email=login) | Q(username=login))
+        if user:
+            return self.dto_class(
+                id=user.pk,
+                username=user.username,
+                email=user.email,
+                password_hash=user.password_hash,
+                token_version=user.token_version
+            )
+        else:
+            return None
+
+    # async def get_user_by_unique_field_and_password_hash(self, password_hash: str, **param) -> Optional[UserSchema]:
+    #     valid = self.__validate_param(**param)
+    #     if valid:
+    #         user = await self.db_class().get_or_none(password_hash=password_hash, **param)
+    #         if user:
+    #             return self.dto_class(
+    #                 id=user.pk,
+    #                 username=user.username,
+    #                 email=user.email,
+    #                 password_hash=user.password_hash,
+    #                 token_version=user.token_version
+    #             )
+    #     return None
+
+    @staticmethod
+    def __validate_param(**param) -> bool:
+        return len(param) == 1 and type(param) == dict
 
     async def get_all(self) -> list[UserSchema]:
         users = await self.db_class().all()

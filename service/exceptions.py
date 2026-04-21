@@ -1,5 +1,11 @@
-from core.service.exception import BaseCustomRecordException
+from pydantic import BaseModel
 
-class LoginAlreadyExists(BaseCustomRecordException):
-    def __str__(self) -> str:
-        return f"Login {self.args[0]} for user {self.record} already exists!"
+from core.service.exception import BaseCustomRecordException
+from typing import TypeVar
+
+T = TypeVar('T', bound=BaseModel)
+
+class PasswordVerificationFailed(BaseCustomRecordException):
+    def __init__(self, username: str) -> None:
+        message = f"Wrong password for user '{username}'!"
+        super().__init__(message)

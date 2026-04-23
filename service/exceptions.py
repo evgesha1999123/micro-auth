@@ -1,9 +1,5 @@
-from pydantic import BaseModel
-
 from core.service.exception import BaseCustomRecordException
-from typing import TypeVar
 
-T = TypeVar('T', bound=BaseModel)
 
 class PasswordVerificationFailed(BaseCustomRecordException):
     def __init__(self, login: str) -> None:

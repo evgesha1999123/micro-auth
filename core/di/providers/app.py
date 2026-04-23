@@ -12,6 +12,7 @@ from service.role import RoleService
 from service.user import UserService
 from service.user_role import UserRoleService
 from settings import Settings
+from utils.jwt_util import JwtUtil
 from utils.password_utils import PasswordUtil
 
 
@@ -38,13 +39,13 @@ class AppProvider(Provider):
 
     @provide
     def password_util(self) -> PasswordUtil:
-        return PasswordUtil(algorythm=self.settings.app.HASH_ALGORYTHM)
+        return PasswordUtil(algorythm=self.settings.app.PASS_HASH_ALGORYTHM)
 
     @provide
     def user_service(self) -> UserService:
         return UserService(
             user_repo=UserDbRepository(dto_class=UserSchema, db_class=User),
-            password_util=PasswordUtil(algorythm=self.settings.app.HASH_ALGORYTHM)
+            password_util=PasswordUtil(algorythm=self.settings.app.PASS_HASH_ALGORYTHM)
         )
 
     @provide
@@ -59,8 +60,9 @@ class AppProvider(Provider):
                     dto_class=UserSchema,
                     db_class=User
                 ),
-                password_util=PasswordUtil(algorythm=self.settings.app.HASH_ALGORYTHM)
+                password_util=PasswordUtil(algorythm=self.settings.app.PASS_HASH_ALGORYTHM)
             ),
             user_role_service=UserRoleService(user_role_repo=UserRoleRepository()),
-            password_util=PasswordUtil(algorythm=self.settings.app.HASH_ALGORYTHM)
+            password_util=PasswordUtil(algorythm=self.settings.app.PASS_HASH_ALGORYTHM),
+            jwt_util=JwtUtil(jwt_config=self.settings.jwt)
         )

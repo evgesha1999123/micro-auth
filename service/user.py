@@ -1,5 +1,6 @@
 from core.service.exception import RecordAlreadyExistsException, RecordDoesNotExistsException
-from model.user import UserSchema, UserRegistrationSchema
+from model.auth import UserRegistrationSchema
+from model.user import UserSchema
 from repository.user import UserDbRepository
 from service.exceptions import PasswordVerificationFailed, UsernameAlreadyExists, EmailAlreadyExists
 from utils.password_utils import PasswordUtil
